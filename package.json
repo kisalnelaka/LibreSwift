@@ -1,0 +1,86 @@
+{
+  "name": "libreswift",
+  "displayName": "LibreSwift iOS Development",
+  "description": "Develop, build, and deploy native iOS Swift apps directly from Linux.",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Debuggers"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "libreswift.setupEnvironment",
+        "title": "LibreSwift: Setup iOS Environment (Extract SDK)"
+      },
+      {
+        "command": "libreswift.runOnDevice",
+        "title": "LibreSwift: Run on Connected iOS Device"
+      }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "ios-build",
+        "required": [
+          "target"
+        ],
+        "properties": {
+          "target": {
+            "type": "string",
+            "description": "The target to build (e.g., arm64-apple-ios)"
+          }
+        }
+      }
+    ],
+    "configuration": {
+      "title": "LibreSwift",
+      "properties": {
+        "libreswift.sdkPath": {
+          "type": "string",
+          "default": "~/.local/share/ios-linux-sdk/iPhoneOS.sdk",
+          "description": "Path to the extracted iPhoneOS.sdk"
+        },
+        "libreswift.p12Path": {
+          "type": "string",
+          "default": "",
+          "description": "Path to Apple Developer .p12 certificate"
+        },
+        "libreswift.p12Password": {
+          "type": "string",
+          "default": "",
+          "description": "Password for the .p12 certificate"
+        },
+        "libreswift.mobileprovisionPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the .mobileprovision file"
+        },
+        "libreswift.bundleIdentifier": {
+          "type": "string",
+          "default": "com.example.App",
+          "description": "Bundle identifier for the iOS app"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "18.x",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  }
+}
