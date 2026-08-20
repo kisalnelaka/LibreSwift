@@ -32,12 +32,12 @@ graph TD
 
 To use LibreSwift on Linux, you must have the following system dependencies installed and in your `$PATH`:
 
-1.  `xtool` - Used for cross-compiling Swift.
-2.  `rcodesign` - Used for cryptographic signing without macOS.
-3.  `libimobiledevice` (specifically `ideviceinstaller`, `idevicesyslog`, `idevice_id`) - Used for interacting with iOS devices.
-4.  `usbmuxd` - Daemon for USB communication with iOS devices.
-5.  `xar`, `pbzx`, and `cpio` - Used for unpacking Xcode `.xip` archives.
-6.  `sourcekit-lsp` - Ensure the Swift toolchain is installed.
+1.  [`xtool`](https://github.com/kabiroberai/xtool) - Used for cross-compiling Swift.
+2.  [`rcodesign`](https://github.com/indygreg/apple-platform-rs) - Used for cryptographic signing without macOS.
+3.  [`libimobiledevice`](https://libimobiledevice.org/) (specifically `ideviceinstaller`, `idevicesyslog`, `idevice_id`) - Used for interacting with iOS devices.
+4.  [`usbmuxd`](https://github.com/libimobiledevice/usbmuxd) - Daemon for USB communication with iOS devices.
+5.  `xar`, [`pbzx`](https://github.com/NiklasRosenstein/pbzx), and `cpio` - Used for unpacking Xcode `.xip` archives.
+6.  [`sourcekit-lsp`](https://github.com/apple/sourcekit-lsp) - Ensure the Swift toolchain is installed.
 
 ### Windows Subsystem for Linux (WSL)
 
@@ -64,3 +64,10 @@ You can customize paths in `.vscode/settings.json`:
 ## License
 
 MIT License. See [LICENSE](LICENSE) for more information.
+
+## Acknowledgments
+
+A massive thank you to the developers and maintainers of the open-source tools that make LibreSwift possible:
+- The [apple-platform-rs](https://github.com/indygreg/apple-platform-rs) team for `rcodesign`.
+- The [libimobiledevice](https://libimobiledevice.org/) community for reverse engineering Apple's protocols.
+- The creators of `xtool`, `pbzx`, and the Swift open-source community.
