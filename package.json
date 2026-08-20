@@ -12,16 +12,78 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "libreswift-sidebar",
+          "title": "LibreSwift",
+          "icon": "$(device-mobile)"
+        }
+      ]
+    },
+    "views": {
+      "libreswift-sidebar": [
+        {
+          "id": "libreswift.sidebar",
+          "name": "iOS Development"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "libreswift.setupEnvironment",
-        "title": "LibreSwift: Setup iOS Environment (Extract SDK)"
+        "title": "LibreSwift: Setup iOS Environment (Extract SDK)",
+        "icon": "$(folder)"
       },
       {
         "command": "libreswift.runOnDevice",
-        "title": "LibreSwift: Run on Connected iOS Device"
+        "title": "LibreSwift: Run on Connected iOS Device",
+        "icon": "$(play)"
+      },
+      {
+        "command": "libreswift.promptP12Password",
+        "title": "LibreSwift: Set P12 Password",
+        "icon": "$(key)"
+      },
+      {
+        "command": "libreswift.refreshDevices",
+        "title": "LibreSwift: Refresh Devices",
+        "icon": "$(refresh)"
       }
     ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "libreswift.runOnDevice",
+          "when": "resourceExtname == .swift",
+          "group": "navigation"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "libreswift.refreshDevices",
+          "when": "view == libreswift.sidebar",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "libreswift.setupEnvironment",
+          "when": "view == libreswift.sidebar && viewItem == libreswift.setupEnvironment",
+          "group": "inline"
+        },
+        {
+          "command": "libreswift.promptP12Password",
+          "when": "view == libreswift.sidebar && viewItem == libreswift.promptP12Password",
+          "group": "inline"
+        },
+        {
+          "command": "libreswift.refreshDevices",
+          "when": "view == libreswift.sidebar && viewItem == libreswift.refreshDevices",
+          "group": "inline"
+        }
+      ]
+    },
     "taskDefinitions": [
       {
         "type": "ios-build",
@@ -48,11 +110,6 @@
           "type": "string",
           "default": "",
           "description": "Path to Apple Developer .p12 certificate"
-        },
-        "libreswift.p12Password": {
-          "type": "string",
-          "default": "",
-          "description": "Password for the .p12 certificate"
         },
         "libreswift.mobileprovisionPath": {
           "type": "string",

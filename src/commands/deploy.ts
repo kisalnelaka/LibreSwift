@@ -1,33 +1,47 @@
 import * as vscode from 'vscode';
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { checkDependencies } from '../services/dependencyChecker';
+import { buildWithXtool } from '../services/xtoolWrapper';
+import { signApp } from '../services/rcodesignWrapper';
+import { installAppOnDevice, streamDeviceLogs } from '../services/imobiledeviceWrapper';
 
-const execAsync = promisify(exec);
-
-export async function runOnDevice(context: vscode.ExtensionContext) {
-    vscode.window.showInformationMessage('Starting LibreSwift Deploy to Device...');
-    
+export async function runOnDevice(context: vscode.ExtensionContext, diagnosticCollection: vscode.DiagnosticCollection) {
     vscode.window.withProgress({
         location: vscode.ProgressLocation.Notification,
         title: "Deploying to iOS Device",
-        cancellable: true
-    }, async (progress, token) => {
+        cancellable: false
+    }, async (progress) => {
         try {
-            // 1. Build and Sign (Could call the task or directly exec)
-            progress.report({ message: "Building and signing app..." });
-            // Simulate build
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // 1. Dependency Check
+            progress.report({ message: "Checking dependencies..." });
+            const depsOk = await checkDependencies();
+            if (!depsOk) {
+                throw new Error("Missing required CLI tools. Check logs.");
+            }
 
-            // 2. Install via ideviceinstaller
+            const workspaceFolders = vscode.workspace.workspaceFolders;
+            if (!workspaceFolders) throw new Error("No workspace folder open.");
+            const workspacePath = workspaceFolders[0].uri.fsPath;
+
+            const config = vscode.workspace.getConfiguration('libreswift');
+            const sdkPath = config.get<string>('sdkPath') || '~/.local/share/ios-linux-sdk/iPhoneOS.sdk';
+            const bundleId = config.get<string>('bundleIdentifier') || 'com.example.App';
+
+            // 2. Build with xtool
+            progress.report({ message: "Building with xtool..." });
+            const appPath = await buildWithXtool('arm64-apple-ios', sdkPath, workspacePath, diagnosticCollection);
+
+            // 3. Sign with rcodesign
+            progress.report({ message: "Signing app..." });
+            await signApp(appPath, context);
+
+            // 4. Install over USB
             progress.report({ message: "Installing on device..." });
-            // await execAsync(`ideviceinstaller -i path/to/app.app`);
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await installAppOnDevice(appPath);
 
-            // 3. Stream logs using idevicesyslog
-            const outputChannel = vscode.window.createOutputChannel('iOS Device Logs');
-            outputChannel.show();
-            outputChannel.appendLine('--- App Launched ---');
-            outputChannel.appendLine('Streaming logs from device...');
+            // 5. Stream logs
+            progress.report({ message: "Streaming logs..." });
+            const outputChannel = vscode.window.createOutputChannel('LibreSwift Device Logs');
+            streamDeviceLogs(bundleId, outputChannel);
             
             vscode.window.showInformationMessage('App deployed successfully!');
         } catch (error: any) {
