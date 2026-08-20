@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.libreSwiftStatusBar = void 0;
 exports.activate = activate;
 exports.deactivate = deactivate;
 const vscode = require("vscode");
@@ -9,38 +10,64 @@ const buildTaskProvider_1 = require("./providers/buildTaskProvider");
 const dependencyChecker_1 = require("./services/dependencyChecker");
 const sidebarProvider_1 = require("./providers/sidebarProvider");
 const secretManager_1 = require("./services/secretManager");
+const sourcekitClient_1 = require("./lsp/sourcekitClient");
+const lspConfig_1 = require("./lsp/lspConfig");
 async function activate(context) {
     console.log('LibreSwift extension is now active!');
     // Initialize SecretManager
     secretManager_1.SecretManager.initialize(context);
     const diagnosticCollection = vscode.languages.createDiagnosticCollection('libreswift');
     context.subscriptions.push(diagnosticCollection);
+    // Setup Status Bar State Machine
+    exports.libreSwiftStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+    exports.libreSwiftStatusBar.text = '$(play) Run on iOS';
+    exports.libreSwiftStatusBar.command = 'libreswift.runOnDevice';
+    exports.libreSwiftStatusBar.show();
+    context.subscriptions.push(exports.libreSwiftStatusBar);
     // 1. Check Dependencies
     const dependenciesOk = await (0, dependencyChecker_1.checkDependencies)();
     if (!dependenciesOk) {
-        vscode.window.showWarningMessage('LibreSwift: Some required CLI tools are missing. Extension may not function correctly.');
+        vscode.window.showWarningMessage('LibreSwift: Some required CLI tools are missing.', 'Extract SDK Now').then(selection => {
+            if (selection === 'Extract SDK Now') {
+                vscode.commands.executeCommand('libreswift.setupEnvironment');
+            }
+        });
     }
     // 2. Register Commands
     const setupCommand = vscode.commands.registerCommand('libreswift.setupEnvironment', () => (0, setup_1.setupEnvironment)(context));
     const deployCommand = vscode.commands.registerCommand('libreswift.runOnDevice', () => (0, deploy_1.runOnDevice)(context, diagnosticCollection));
     const promptPasswordCommand = vscode.commands.registerCommand('libreswift.promptP12Password', () => (0, secretManager_1.promptP12Password)(context));
-    context.subscriptions.push(setupCommand, deployCommand, promptPasswordCommand);
+    const showLogsCommand = vscode.commands.registerCommand('libreswift.showLogs', () => {
+        // Find existing output channel or create new
+        const outputChannel = vscode.window.createOutputChannel('LibreSwift Device Logs');
+        outputChannel.show();
+    });
+    context.subscriptions.push(setupCommand, deployCommand, promptPasswordCommand, showLogsCommand);
     // 3. Register Task Provider
     const taskProvider = vscode.tasks.registerTaskProvider('ios-build', new buildTaskProvider_1.IOSBuildTaskProvider(diagnosticCollection));
     context.subscriptions.push(taskProvider);
-    // 4. Setup Status Bar (Device Connectivity)
-    const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-    statusBarItem.text = '$(play) Run on iOS';
-    statusBarItem.command = 'libreswift.runOnDevice';
-    statusBarItem.show();
-    context.subscriptions.push(statusBarItem);
-    // 5. Sidebar Provider
+    // 4. Sidebar Provider
     const sidebarProvider = new sidebarProvider_1.SidebarProvider();
     vscode.window.registerTreeDataProvider('libreswift.sidebar', sidebarProvider);
     const refreshCommand = vscode.commands.registerCommand('libreswift.refreshDevices', () => {
         sidebarProvider.refresh();
     });
     context.subscriptions.push(refreshCommand);
+    // 5. SourceKit-LSP Setup
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (workspaceFolders) {
+        const workspacePath = workspaceFolders[0].uri.fsPath;
+        await (0, lspConfig_1.updateLspConfig)(workspacePath);
+        // React to config changes
+        context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(async (e) => {
+            if (e.affectsConfiguration('libreswift.sdkPath')) {
+                await (0, lspConfig_1.updateLspConfig)(workspacePath);
+            }
+        }));
+    }
+    await (0, sourcekitClient_1.activateLSP)(context);
 }
-function deactivate() { }
+function deactivate() {
+    return (0, sourcekitClient_1.deactivateLSP)();
+}
 //# sourceMappingURL=extension.js.map

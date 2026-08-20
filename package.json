@@ -49,6 +49,18 @@
         "command": "libreswift.refreshDevices",
         "title": "LibreSwift: Refresh Devices",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "libreswift.restartLSP",
+        "title": "LibreSwift: Restart SourceKit-LSP"
+      },
+      {
+        "command": "libreswift.statusLSP",
+        "title": "LibreSwift: SourceKit-LSP Status"
+      },
+      {
+        "command": "libreswift.showLogs",
+        "title": "LibreSwift: Show Device Logs"
       }
     ],
     "menus": {
@@ -84,6 +96,47 @@
         }
       ]
     },
+    "walkthroughs": [
+      {
+        "id": "libreswift.welcome",
+        "title": "Get Started with LibreSwift",
+        "description": "Develop and deploy iOS apps directly from Linux.",
+        "steps": [
+          {
+            "id": "libreswift.step1",
+            "title": "Select & Unpack Xcode .xip",
+            "description": "Extract the iPhoneOS.sdk from an official Xcode .xip archive.\n[Extract SDK Now](command:libreswift.setupEnvironment)",
+            "media": {
+              "markdown": "walkthroughs/step1.md"
+            }
+          },
+          {
+            "id": "libreswift.step2",
+            "title": "Configure Developer Certificate & Profile",
+            "description": "Set up your Apple Developer `.p12` certificate and `.mobileprovision` profile in LibreSwift settings.\n[Set Password](command:libreswift.promptP12Password)",
+            "media": {
+              "markdown": "walkthroughs/step2.md"
+            }
+          },
+          {
+            "id": "libreswift.step3",
+            "title": "Connect iPhone via USB",
+            "description": "Ensure `usbmuxd` is running and your iPhone is connected and trusted.\n[Refresh Devices](command:libreswift.refreshDevices)",
+            "media": {
+              "markdown": "walkthroughs/step3.md"
+            }
+          },
+          {
+            "id": "libreswift.step4",
+            "title": "Run First iOS Build",
+            "description": "Open a Swift project and click the Play button to build, sign, and deploy.",
+            "media": {
+              "markdown": "walkthroughs/step4.md"
+            }
+          }
+        ]
+      }
+    ],
     "taskDefinitions": [
       {
         "type": "ios-build",
