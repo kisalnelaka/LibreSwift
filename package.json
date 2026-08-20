@@ -2,11 +2,12 @@
   "name": "libreswift",
   "displayName": "LibreSwift iOS Development",
   "description": "Develop, build, and deploy native iOS Swift apps directly from Linux.",
+  "publisher": "Kisal Nelaka",
   "repository": {
     "type": "git",
     "url": "https://github.com/kisalnelaka/LibreSwift"
   },
-  "version": "0.1.0",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.85.0"
   },
