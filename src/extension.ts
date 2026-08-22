@@ -9,6 +9,7 @@ import { activateLSP, deactivateLSP } from './lsp/sourcekitClient';
 import { updateLspConfig } from './lsp/lspConfig';
 import { bootstrapEnvironment } from './commands/bootstrap';
 import { showFeedbackWebview } from './webviews/feedbackWebview';
+import { showHelpManual } from './webviews/helpManual';
 
 // Make the status bar accessible to other modules
 export let libreSwiftStatusBar: vscode.StatusBarItem;
@@ -29,15 +30,32 @@ export async function activate(context: vscode.ExtensionContext) {
     libreSwiftStatusBar.show();
     context.subscriptions.push(libreSwiftStatusBar);
 
-    // 1. Check Dependencies
+    // 1. First-run onboarding: auto-open walkthrough on fresh install, skip silently on subsequent activations
+    const isFirstRun = !context.globalState.get<boolean>('libreswift.hasLaunched');
+    if (isFirstRun) {
+        context.globalState.update('libreswift.hasLaunched', true);
+        // Small delay so the extension fully activates before opening the walkthrough
+        setTimeout(() => {
+            vscode.commands.executeCommand(
+                'workbench.action.openWalkthrough',
+                'kisalnelaka.libreswift#libreswift.welcome',
+                false // false = don't force focus, user can skip
+            );
+        }, 1500);
+    }
+
+    // 2. Check Dependencies — on first run, skip the warning (walkthrough will guide them)
     const dependenciesOk = await checkDependencies();
-    if (!dependenciesOk) {
+    if (!dependenciesOk && !isFirstRun) {
         vscode.window.showWarningMessage(
             'LibreSwift: Some required CLI tools are missing.',
-            'Extract SDK Now'
+            'Run Setup Engine',
+            'Show Help'
         ).then(selection => {
-            if (selection === 'Extract SDK Now') {
-                vscode.commands.executeCommand('libreswift.setupEnvironment');
+            if (selection === 'Run Setup Engine') {
+                vscode.commands.executeCommand('libreswift.bootstrapEnvironment');
+            } else if (selection === 'Show Help') {
+                vscode.commands.executeCommand('libreswift.showHelp');
             }
         });
     }
@@ -52,8 +70,9 @@ export async function activate(context: vscode.ExtensionContext) {
         outputChannel.show();
     });
     const feedbackCommand = vscode.commands.registerCommand('libreswift.showFeedback', () => showFeedbackWebview(context));
+    const helpCommand = vscode.commands.registerCommand('libreswift.showHelp', () => showHelpManual(context));
 
-    context.subscriptions.push(setupCommand, bootstrapCommand, deployCommand, promptPasswordCommand, showLogsCommand, feedbackCommand);
+    context.subscriptions.push(setupCommand, bootstrapCommand, deployCommand, promptPasswordCommand, showLogsCommand, feedbackCommand, helpCommand);
 
     // 3. Register Task Provider
     const taskProvider = vscode.tasks.registerTaskProvider('ios-build', new IOSBuildTaskProvider(diagnosticCollection));
@@ -84,7 +103,10 @@ export async function activate(context: vscode.ExtensionContext) {
         );
     }
     
-    await activateLSP(context);
+    // Only start LSP if dependencies are met — suppress the noisy error on fresh installs
+    if (dependenciesOk) {
+        await activateLSP(context);
+    }
 }
 
 export function deactivate(): Thenable<void> | undefined {

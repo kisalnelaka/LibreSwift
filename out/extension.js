@@ -14,6 +14,7 @@ const sourcekitClient_1 = require("./lsp/sourcekitClient");
 const lspConfig_1 = require("./lsp/lspConfig");
 const bootstrap_1 = require("./commands/bootstrap");
 const feedbackWebview_1 = require("./webviews/feedbackWebview");
+const helpManual_1 = require("./webviews/helpManual");
 async function activate(context) {
     console.log('LibreSwift extension is now active!');
     // Initialize SecretManager
@@ -26,12 +27,25 @@ async function activate(context) {
     exports.libreSwiftStatusBar.command = 'libreswift.runOnDevice';
     exports.libreSwiftStatusBar.show();
     context.subscriptions.push(exports.libreSwiftStatusBar);
-    // 1. Check Dependencies
+    // 1. First-run onboarding: auto-open walkthrough on fresh install, skip silently on subsequent activations
+    const isFirstRun = !context.globalState.get('libreswift.hasLaunched');
+    if (isFirstRun) {
+        context.globalState.update('libreswift.hasLaunched', true);
+        // Small delay so the extension fully activates before opening the walkthrough
+        setTimeout(() => {
+            vscode.commands.executeCommand('workbench.action.openWalkthrough', 'kisalnelaka.libreswift#libreswift.welcome', false // false = don't force focus, user can skip
+            );
+        }, 1500);
+    }
+    // 2. Check Dependencies — on first run, skip the warning (walkthrough will guide them)
     const dependenciesOk = await (0, dependencyChecker_1.checkDependencies)();
-    if (!dependenciesOk) {
-        vscode.window.showWarningMessage('LibreSwift: Some required CLI tools are missing.', 'Extract SDK Now').then(selection => {
-            if (selection === 'Extract SDK Now') {
-                vscode.commands.executeCommand('libreswift.setupEnvironment');
+    if (!dependenciesOk && !isFirstRun) {
+        vscode.window.showWarningMessage('LibreSwift: Some required CLI tools are missing.', 'Run Setup Engine', 'Show Help').then(selection => {
+            if (selection === 'Run Setup Engine') {
+                vscode.commands.executeCommand('libreswift.bootstrapEnvironment');
+            }
+            else if (selection === 'Show Help') {
+                vscode.commands.executeCommand('libreswift.showHelp');
             }
         });
     }
@@ -45,7 +59,8 @@ async function activate(context) {
         outputChannel.show();
     });
     const feedbackCommand = vscode.commands.registerCommand('libreswift.showFeedback', () => (0, feedbackWebview_1.showFeedbackWebview)(context));
-    context.subscriptions.push(setupCommand, bootstrapCommand, deployCommand, promptPasswordCommand, showLogsCommand, feedbackCommand);
+    const helpCommand = vscode.commands.registerCommand('libreswift.showHelp', () => (0, helpManual_1.showHelpManual)(context));
+    context.subscriptions.push(setupCommand, bootstrapCommand, deployCommand, promptPasswordCommand, showLogsCommand, feedbackCommand, helpCommand);
     // 3. Register Task Provider
     const taskProvider = vscode.tasks.registerTaskProvider('ios-build', new buildTaskProvider_1.IOSBuildTaskProvider(diagnosticCollection));
     context.subscriptions.push(taskProvider);
@@ -68,7 +83,10 @@ async function activate(context) {
             }
         }));
     }
-    await (0, sourcekitClient_1.activateLSP)(context);
+    // Only start LSP if dependencies are met — suppress the noisy error on fresh installs
+    if (dependenciesOk) {
+        await (0, sourcekitClient_1.activateLSP)(context);
+    }
 }
 function deactivate() {
     return (0, sourcekitClient_1.deactivateLSP)();

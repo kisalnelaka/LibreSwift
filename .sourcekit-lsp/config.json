@@ -1,0 +1,10 @@
+{
+  "swiftPM": {
+    "swiftCompilerFlags": [
+      "-sdk",
+      "/.local/share/ios-linux-sdk/iPhoneOS.sdk",
+      "-target",
+      "arm64-apple-ios17.0"
+    ]
+  }
+}
