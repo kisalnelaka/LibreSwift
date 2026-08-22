@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Star on GitHub](https://img.shields.io/github/stars/kisalnelaka/LibreSwift?style=social)](https://github.com/kisalnelaka/LibreSwift)
+[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/kisalnelaka.libreswift?label=Marketplace)](https://marketplace.visualstudio.com/items?itemName=kisalnelaka.libreswift)
 
 **LibreSwift** empowers developers to build, sign, and deploy native iOS Swift applications directly to an iPhone over USB from Linux (and WSL), fully bypassing the need for macOS and Xcode.
 
@@ -23,45 +24,96 @@ graph TD
 
 ## Features
 
-*   **One-Click Automated Setup Engine**: Installs Linux APT dependencies and LibreSwift toolchains automatically with zero hassle.
-*   **Native Swift IntelliSense**: Cross-compiled SourceKit-LSP integration.
-*   **One-Click Deployment**: Build, sign, and push to a connected iOS device natively.
-*   **Real-time Logs**: Stream `idevicesyslog` directly to the VS Code output console.
-*   **Automated SDK Extraction**: Unpack official Xcode `.xip` files on Linux automatically.
-*   **Secure Secret Management**: Keep your Apple Developer `.p12` certificates secure using VS Code `SecretStorage`.
-*   **Smart Feedback Webview**: Built-in 5-star rating system allows you to submit actionable feedback directly from VS Code or rate on the Marketplace.
-## Prerequisites
+| Feature | Description |
+|---|---|
+| 🚀 **One-Click Setup Engine** | Installs all Linux dependencies and toolchains automatically |
+| ✨ **Native Swift IntelliSense** | Cross-compiled SourceKit-LSP for iOS targets |
+| 📱 **One-Click Deployment** | Build, sign, and push to a physical device natively |
+| 📋 **Real-time Device Logs** | Stream `idevicesyslog` output directly into VS Code |
+| 📦 **Automated SDK Extraction** | Unpack Xcode `.xip` archives on Linux automatically |
+| 🔐 **Secure Secret Management** | `.p12` passwords stored via VS Code `SecretStorage` (OS keychain) |
+| 👋 **Interactive Onboarding** | Auto-triggered Welcome Walkthrough on first install, skippable |
+| 📖 **Help & Manual** | Full in-app manual with 10 chapters, searchable sidebar |
+| ⭐ **Smart Feedback Webview** | In-app 5-star rating — negative feedback goes to devs, 5 stars goes to the Marketplace and GitHub |
 
-To use LibreSwift on Linux, you must have the following system dependencies installed and in your `$PATH`:
+## Getting Started
 
-1.  [`xtool`](https://github.com/kabiroberai/xtool) - Used for cross-compiling Swift.
-2.  [`rcodesign`](https://github.com/indygreg/apple-platform-rs) - Used for cryptographic signing without macOS.
-3.  [`libimobiledevice`](https://libimobiledevice.org/) (specifically `ideviceinstaller`, `idevicesyslog`, `idevice_id`) - Used for interacting with iOS devices.
-4.  [`usbmuxd`](https://github.com/libimobiledevice/usbmuxd) - Daemon for USB communication with iOS devices.
-5.  `xar`, [`pbzx`](https://github.com/NiklasRosenstein/pbzx), and `cpio` - Used for unpacking Xcode `.xip` archives.
-6.  [`sourcekit-lsp`](https://github.com/apple/sourcekit-lsp) - Ensure the Swift toolchain is installed.
+> **New users:** On first install, LibreSwift automatically opens a guided onboarding walkthrough. Just follow the steps — you can skip at any time and return to it later via `Ctrl+Shift+P` → `Welcome: Open Walkthrough` → `LibreSwift`.
+
+### Step 1 — Run the One-Click Setup Engine
+
+Open the Command Palette (`Ctrl+Shift+P`) and run:
+
+```
+LibreSwift: One-Click Automated Setup Engine
+```
+
+This installs all required system packages (`usbmuxd`, `libimobiledevice`, etc.) and downloads the LibreSwift toolchains (`xtool`, `rcodesign`) automatically.
+
+### Step 2 — Extract the iPhoneOS SDK
+
+Download an official **Xcode `.xip`** from [developer.apple.com](https://developer.apple.com/download/more/) (free Apple ID required), then run:
+
+```
+LibreSwift: Setup iOS Environment (Extract SDK)
+```
+
+### Step 3 — Configure Code Signing
+
+In VS Code Settings, set:
+- `libreswift.p12Path` → path to your `.p12` Apple Developer certificate
+- `libreswift.mobileprovisionPath` → path to your `.mobileprovision` file
+
+Then run `LibreSwift: Set P12 Password` to store your certificate password securely.
+
+### Step 4 — Connect & Deploy
+
+Plug in your iPhone via USB, trust the computer on your device, then click **▶ Run on iOS** in the status bar.
 
 ### Windows Subsystem for Linux (WSL)
 
-If you are running LibreSwift under WSL2, you must pass your iPhone's USB connection through to Linux using `usbipd-win`. 
-1. Open PowerShell on Windows: `usbipd list`
-2. Bind the device: `usbipd bind --busid <busid>`
-3. Attach to WSL: `usbipd attach --wsl --busid <busid>`
+WSL2 requires USB passthrough via [`usbipd-win`](https://github.com/dorssel/usbipd-win):
 
-## Quickstart
+```powershell
+# In PowerShell (Admin)
+usbipd list
+usbipd bind --busid <busid>
+usbipd attach --wsl --busid <busid>
+```
 
-1. Install LibreSwift in VS Code.
-2. Open the **LibreSwift Welcome Walkthrough** via the Command Palette (`Ctrl+Shift+P` -> `Welcome: Open Walkthrough` -> `LibreSwift`).
-3. Follow the walkthrough to extract the SDK and set up your certificate password.
-4. Open a Swift file, wait for SourceKit-LSP to initialize, and click the **$(play) Run on iOS** button in your title bar or status bar to deploy!
+## Commands
 
-## Configuration Options
+| Command | Description |
+|---|---|
+| `LibreSwift: One-Click Automated Setup Engine` | Install all dependencies automatically |
+| `LibreSwift: Setup iOS Environment (Extract SDK)` | Extract iPhoneOS.sdk from Xcode .xip |
+| `LibreSwift: Run on Connected iOS Device` | Build, sign & deploy |
+| `LibreSwift: Set P12 Password` | Store certificate password securely |
+| `LibreSwift: Refresh Devices` | Re-scan for connected devices |
+| `LibreSwift: Restart SourceKit-LSP` | Restart the Swift language server |
+| `LibreSwift: Show Device Logs` | Open device log output channel |
+| `LibreSwift: Help & Manual` | Open the full in-app manual |
+| `LibreSwift: Provide Feedback / Rate` | Open the in-app feedback & rating panel |
 
-You can customize paths in `.vscode/settings.json`:
-*   `libreswift.sdkPath`: Absolute path to `iPhoneOS.sdk` (Default: `~/.local/share/ios-linux-sdk/iPhoneOS.sdk`)
-*   `libreswift.p12Path`: Absolute path to your `.p12` Apple Developer certificate.
-*   `libreswift.mobileprovisionPath`: Absolute path to your `.mobileprovision` file.
-*   `libreswift.bundleIdentifier`: The bundle ID of your application.
+## Configuration
+
+| Setting | Default | Description |
+|---|---|---|
+| `libreswift.sdkPath` | `~/.local/share/ios-linux-sdk/iPhoneOS.sdk` | Path to extracted iPhoneOS.sdk |
+| `libreswift.p12Path` | _(empty)_ | Path to your `.p12` developer certificate |
+| `libreswift.mobileprovisionPath` | _(empty)_ | Path to your `.mobileprovision` file |
+| `libreswift.bundleIdentifier` | `com.example.App` | Bundle ID of your iOS app |
+
+## Prerequisites
+
+The following tools must be available on your system. The Setup Engine installs them automatically:
+
+1. [`xtool`](https://github.com/kabiroberai/xtool) — cross-compiler for Swift targeting iOS
+2. [`rcodesign`](https://github.com/indygreg/apple-platform-rs) — code signing without macOS
+3. [`libimobiledevice`](https://libimobiledevice.org/) — iOS device communication
+4. [`usbmuxd`](https://github.com/libimobiledevice/usbmuxd) — USB daemon for iPhone
+5. [`pbzx`](https://github.com/NiklasRosenstein/pbzx), `xar`, `cpio` — archive utilities for `.xip` extraction
+6. [`sourcekit-lsp`](https://github.com/apple/sourcekit-lsp) — Swift language server (via [swift.org](https://swift.org/install))
 
 ## License
 
