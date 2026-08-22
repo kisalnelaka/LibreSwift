@@ -14,7 +14,20 @@
   },
   "categories": [
     "Programming Languages",
-    "Debuggers"
+    "Other"
+  ],
+  "keywords": [
+    "ios",
+    "swift",
+    "linux",
+    "wsl",
+    "iphone",
+    "apple",
+    "cross-compile",
+    "sourcekit-lsp",
+    "xtool",
+    "rcodesign",
+    "libimobiledevice"
   ],
   "main": "./out/extension.js",
   "contributes": {
