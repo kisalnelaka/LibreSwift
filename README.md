@@ -1,6 +1,7 @@
 # LibreSwift iOS Development for VS Code
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Star on GitHub](https://img.shields.io/github/stars/kisalnelaka/LibreSwift?style=social)](https://github.com/kisalnelaka/LibreSwift)
 
 **LibreSwift** empowers developers to build, sign, and deploy native iOS Swift applications directly to an iPhone over USB from Linux (and WSL), fully bypassing the need for macOS and Xcode.
 
@@ -22,12 +23,13 @@ graph TD
 
 ## Features
 
+*   **One-Click Automated Setup Engine**: Installs Linux APT dependencies and LibreSwift toolchains automatically with zero hassle.
 *   **Native Swift IntelliSense**: Cross-compiled SourceKit-LSP integration.
 *   **One-Click Deployment**: Build, sign, and push to a connected iOS device natively.
 *   **Real-time Logs**: Stream `idevicesyslog` directly to the VS Code output console.
 *   **Automated SDK Extraction**: Unpack official Xcode `.xip` files on Linux automatically.
 *   **Secure Secret Management**: Keep your Apple Developer `.p12` certificates secure using VS Code `SecretStorage`.
-
+*   **Smart Feedback Webview**: Built-in 5-star rating system allows you to submit actionable feedback directly from VS Code or rate on the Marketplace.
 ## Prerequisites
 
 To use LibreSwift on Linux, you must have the following system dependencies installed and in your `$PATH`:
