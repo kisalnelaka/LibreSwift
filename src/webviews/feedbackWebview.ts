@@ -25,6 +25,10 @@ export function showFeedbackWebview(context: vscode.ExtensionContext) {
                     vscode.env.openExternal(vscode.Uri.parse('https://marketplace.visualstudio.com/items?itemName=libreswift.libreswift'));
                     panel.dispose();
                     return;
+                case 'openGitHub':
+                    vscode.env.openExternal(vscode.Uri.parse('https://github.com/kisalnelaka/LibreSwift'));
+                    panel.dispose();
+                    return;
             }
         },
         undefined,
@@ -98,6 +102,15 @@ function getWebviewContent() {
         button:hover {
             background-color: var(--vscode-button-hoverBackground);
         }
+        .secondary-btn {
+            background-color: transparent;
+            color: var(--vscode-button-foreground);
+            border: 1px solid var(--vscode-button-background);
+            margin-top: 10px;
+        }
+        .secondary-btn:hover {
+            background-color: var(--vscode-button-background);
+        }
     </style>
 </head>
 <body>
@@ -120,6 +133,7 @@ function getWebviewContent() {
     <div id="marketplace-area">
         <p>Awesome! Would you mind leaving us a quick review on the VS Code Marketplace?</p>
         <button id="market-btn">Rate on Marketplace</button>
+        <button id="github-btn" class="secondary-btn">⭐ Star on GitHub</button>
     </div>
 
     <script>
@@ -165,6 +179,12 @@ function getWebviewContent() {
         document.getElementById('market-btn').addEventListener('click', () => {
             vscode.postMessage({
                 command: 'openMarketplace'
+            });
+        });
+
+        document.getElementById('github-btn').addEventListener('click', () => {
+            vscode.postMessage({
+                command: 'openGitHub'
             });
         });
     </script>
