@@ -2,13 +2,7 @@
   "name": "libreswift",
   "displayName": "LibreSwift iOS Development",
   "description": "Develop, build, and deploy native iOS Swift apps directly from Linux.",
-  "publisher": "KisalNelaka",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kisalnelaka/LibreSwift"
-  },
-  "icon": "icon.png",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -42,6 +36,11 @@
         "icon": "$(folder)"
       },
       {
+        "command": "libreswift.bootstrapEnvironment",
+        "title": "LibreSwift: One-Click Automated Setup Engine",
+        "icon": "$(cloud-download)"
+      },
+      {
         "command": "libreswift.runOnDevice",
         "title": "LibreSwift: Run on Connected iOS Device",
         "icon": "$(play)"
@@ -67,6 +66,11 @@
       {
         "command": "libreswift.showLogs",
         "title": "LibreSwift: Show Device Logs"
+      },
+      {
+        "command": "libreswift.showFeedback",
+        "title": "LibreSwift: Provide Feedback / Rate",
+        "icon": "$(star)"
       }
     ],
     "menus": {
@@ -91,6 +95,11 @@
           "group": "inline"
         },
         {
+          "command": "libreswift.bootstrapEnvironment",
+          "when": "view == libreswift.sidebar && viewItem == libreswift.bootstrapEnvironment",
+          "group": "inline"
+        },
+        {
           "command": "libreswift.promptP12Password",
           "when": "view == libreswift.sidebar && viewItem == libreswift.promptP12Password",
           "group": "inline"
@@ -98,6 +107,11 @@
         {
           "command": "libreswift.refreshDevices",
           "when": "view == libreswift.sidebar && viewItem == libreswift.refreshDevices",
+          "group": "inline"
+        },
+        {
+          "command": "libreswift.showFeedback",
+          "when": "view == libreswift.sidebar && viewItem == libreswift.showFeedback",
           "group": "inline"
         }
       ]
@@ -108,6 +122,14 @@
         "title": "Get Started with LibreSwift",
         "description": "Develop and deploy iOS apps directly from Linux.",
         "steps": [
+          {
+            "id": "libreswift.step0",
+            "title": "Automated Setup Engine",
+            "description": "Install required system dependencies and download the toolchain automatically.\n[Run Automated Setup](command:libreswift.bootstrapEnvironment)",
+            "media": {
+              "markdown": "walkthroughs/step0.md"
+            }
+          },
           {
             "id": "libreswift.step1",
             "title": "Select & Unpack Xcode .xip",

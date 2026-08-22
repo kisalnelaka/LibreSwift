@@ -7,6 +7,8 @@ import { SidebarProvider } from './providers/sidebarProvider';
 import { SecretManager, promptP12Password } from './services/secretManager';
 import { activateLSP, deactivateLSP } from './lsp/sourcekitClient';
 import { updateLspConfig } from './lsp/lspConfig';
+import { bootstrapEnvironment } from './commands/bootstrap';
+import { showFeedbackWebview } from './webviews/feedbackWebview';
 
 // Make the status bar accessible to other modules
 export let libreSwiftStatusBar: vscode.StatusBarItem;
@@ -42,15 +44,16 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // 2. Register Commands
     const setupCommand = vscode.commands.registerCommand('libreswift.setupEnvironment', () => setupEnvironment(context));
+    const bootstrapCommand = vscode.commands.registerCommand('libreswift.bootstrapEnvironment', () => bootstrapEnvironment(context));
     const deployCommand = vscode.commands.registerCommand('libreswift.runOnDevice', () => runOnDevice(context, diagnosticCollection));
     const promptPasswordCommand = vscode.commands.registerCommand('libreswift.promptP12Password', () => promptP12Password(context));
     const showLogsCommand = vscode.commands.registerCommand('libreswift.showLogs', () => {
-        // Find existing output channel or create new
         const outputChannel = vscode.window.createOutputChannel('LibreSwift Device Logs');
         outputChannel.show();
     });
+    const feedbackCommand = vscode.commands.registerCommand('libreswift.showFeedback', () => showFeedbackWebview(context));
 
-    context.subscriptions.push(setupCommand, deployCommand, promptPasswordCommand, showLogsCommand);
+    context.subscriptions.push(setupCommand, bootstrapCommand, deployCommand, promptPasswordCommand, showLogsCommand, feedbackCommand);
 
     // 3. Register Task Provider
     const taskProvider = vscode.tasks.registerTaskProvider('ios-build', new IOSBuildTaskProvider(diagnosticCollection));

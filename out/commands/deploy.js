@@ -69,6 +69,13 @@ async function runOnDevice(context, diagnosticCollection) {
             (0, imobiledeviceWrapper_1.streamDeviceLogs)(bundleId, outputChannel);
             extension_1.libreSwiftStatusBar.text = '$(check) Deployed to Device';
             vscode.window.showInformationMessage('App deployed successfully!');
+            // Periodically ask for feedback
+            if (Math.random() < 0.2) {
+                vscode.window.showInformationMessage('Enjoying LibreSwift? We would love your feedback!', 'Rate Us').then(s => {
+                    if (s === 'Rate Us')
+                        vscode.commands.executeCommand('libreswift.showFeedback');
+                });
+            }
             setTimeout(() => {
                 extension_1.libreSwiftStatusBar.text = '$(play) Run on iOS';
             }, 5000);

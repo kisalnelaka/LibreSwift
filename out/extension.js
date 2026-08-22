@@ -12,6 +12,8 @@ const sidebarProvider_1 = require("./providers/sidebarProvider");
 const secretManager_1 = require("./services/secretManager");
 const sourcekitClient_1 = require("./lsp/sourcekitClient");
 const lspConfig_1 = require("./lsp/lspConfig");
+const bootstrap_1 = require("./commands/bootstrap");
+const feedbackWebview_1 = require("./webviews/feedbackWebview");
 async function activate(context) {
     console.log('LibreSwift extension is now active!');
     // Initialize SecretManager
@@ -35,14 +37,15 @@ async function activate(context) {
     }
     // 2. Register Commands
     const setupCommand = vscode.commands.registerCommand('libreswift.setupEnvironment', () => (0, setup_1.setupEnvironment)(context));
+    const bootstrapCommand = vscode.commands.registerCommand('libreswift.bootstrapEnvironment', () => (0, bootstrap_1.bootstrapEnvironment)(context));
     const deployCommand = vscode.commands.registerCommand('libreswift.runOnDevice', () => (0, deploy_1.runOnDevice)(context, diagnosticCollection));
     const promptPasswordCommand = vscode.commands.registerCommand('libreswift.promptP12Password', () => (0, secretManager_1.promptP12Password)(context));
     const showLogsCommand = vscode.commands.registerCommand('libreswift.showLogs', () => {
-        // Find existing output channel or create new
         const outputChannel = vscode.window.createOutputChannel('LibreSwift Device Logs');
         outputChannel.show();
     });
-    context.subscriptions.push(setupCommand, deployCommand, promptPasswordCommand, showLogsCommand);
+    const feedbackCommand = vscode.commands.registerCommand('libreswift.showFeedback', () => (0, feedbackWebview_1.showFeedbackWebview)(context));
+    context.subscriptions.push(setupCommand, bootstrapCommand, deployCommand, promptPasswordCommand, showLogsCommand, feedbackCommand);
     // 3. Register Task Provider
     const taskProvider = vscode.tasks.registerTaskProvider('ios-build', new buildTaskProvider_1.IOSBuildTaskProvider(diagnosticCollection));
     context.subscriptions.push(taskProvider);
