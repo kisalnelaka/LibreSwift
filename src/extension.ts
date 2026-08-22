@@ -34,12 +34,12 @@ export async function activate(context: vscode.ExtensionContext) {
     const isFirstRun = !context.globalState.get<boolean>('libreswift.hasLaunched');
     if (isFirstRun) {
         context.globalState.update('libreswift.hasLaunched', true);
-        // Small delay so the extension fully activates before opening the walkthrough
         setTimeout(() => {
+            // Must pass an object with 'category' key — plain string opens the generic welcome screen
             vscode.commands.executeCommand(
                 'workbench.action.openWalkthrough',
-                'kisalnelaka.libreswift#libreswift.welcome',
-                false // false = don't force focus, user can skip
+                { category: 'kisalnelaka.libreswift#libreswift.welcome' },
+                false
             );
         }, 1500);
     }

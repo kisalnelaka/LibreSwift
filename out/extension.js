@@ -31,10 +31,9 @@ async function activate(context) {
     const isFirstRun = !context.globalState.get('libreswift.hasLaunched');
     if (isFirstRun) {
         context.globalState.update('libreswift.hasLaunched', true);
-        // Small delay so the extension fully activates before opening the walkthrough
         setTimeout(() => {
-            vscode.commands.executeCommand('workbench.action.openWalkthrough', 'kisalnelaka.libreswift#libreswift.welcome', false // false = don't force focus, user can skip
-            );
+            // Must pass an object with 'category' key — plain string opens the generic welcome screen
+            vscode.commands.executeCommand('workbench.action.openWalkthrough', { category: 'kisalnelaka.libreswift#libreswift.welcome' }, false);
         }, 1500);
     }
     // 2. Check Dependencies — on first run, skip the warning (walkthrough will guide them)
