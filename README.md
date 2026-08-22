@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Star on GitHub](https://img.shields.io/github/stars/kisalnelaka/LibreSwift?style=social)](https://github.com/kisalnelaka/LibreSwift)
-[![VS Code Marketplace](https://img.shields.io/vscode-marketplace/v/kisalnelaka.libreswift.svg?label=Marketplace&color=blue)](https://marketplace.visualstudio.com/items?itemName=kisalnelaka.libreswift)
+[![VS Code Marketplace](https://img.shields.io/badge/VS%20Code-Marketplace-blue?logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=kisalnelaka.libreswift)
 
 **LibreSwift** empowers developers to build, sign, and deploy native iOS Swift applications directly to an iPhone over USB from Linux (and WSL), fully bypassing the need for macOS and Xcode.
 
