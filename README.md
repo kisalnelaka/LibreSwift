@@ -108,6 +108,8 @@ usbipd attach --wsl --busid <busid>
 | `LibreSwift: Show Device Logs` | Open device log output channel |
 | `LibreSwift: Help & Manual` | Open the full in-app manual |
 | `LibreSwift: Provide Feedback / Rate` | Open the in-app feedback & rating panel |
+| `LibreSwift: Rate on VS Code Marketplace` | Open marketplace review page directly |
+| `LibreSwift: Star on GitHub` | Open GitHub repository to star or contribute |
 
 ## Configuration
 
@@ -121,6 +123,47 @@ usbipd attach --wsl --busid <busid>
 | `libreswift.p12Path` | _(empty)_ | Path to your `.p12` developer certificate |
 | `libreswift.mobileprovisionPath` | _(empty)_ | Path to your `.mobileprovision` file |
 | `libreswift.bundleIdentifier` | `com.example.App` | Bundle ID of your iOS app |
+
+## Issues & Support
+
+If you encounter bugs, missing toolchains, or unexpected behavior:
+
+1. Run **`LibreSwift: Run Doctor (System Diagnostics)`** from the Command Palette (`Ctrl+Shift+P`).
+2. Review the health matrix for any misconfigured SDK paths, broken USB sockets, or missing CLI tools.
+3. Open an issue on GitHub: [GitHub Issues](https://github.com/kisalnelaka/LibreSwift/issues/new).
+4. Attach the Doctor output log and the relevant section from **`LibreSwift: Show Device Logs`**.
+
+## Contributing
+
+We welcome contributions from the community! To maintain stability, the repository follows a strict branch lifecycle:
+
+### Branching Model
+* **`master`** — **Source of Truth (SoT)**. Production-ready, stable releases deployed to VS Code Marketplace and Open VSX.
+* **`development`** — Active development, new features, and integration testing. All pull requests must target `development`.
+
+### Development Workflow
+1. Fork the repository and clone it locally.
+2. Check out the `development` branch:
+   ```bash
+   git checkout development
+   ```
+3. Create a feature branch:
+   ```bash
+   git checkout -b feat/your-feature-name
+   ```
+4. Install dependencies and compile:
+   ```bash
+   npm install
+   npm run compile
+   ```
+5. Run the test suite:
+   ```bash
+   node ./out/test/runTest.js
+   ```
+6. Commit using [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`).
+7. Submit a Pull Request targeting the **`development`** branch.
+
+For full guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Prerequisites
 
