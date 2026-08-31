@@ -4,6 +4,7 @@ import { buildWithXtool } from '../services/xtoolWrapper';
 import { signApp } from '../services/rcodesignWrapper';
 import { installAppOnDevice, getConnectedDevices } from '../services/imobiledeviceWrapper';
 import { libreSwiftStatusBar } from '../extension';
+import { FeedbackPromptService } from '../services/feedbackPrompt';
 
 export async function runDebugOnDevice(context: vscode.ExtensionContext, diagnosticCollection: vscode.DiagnosticCollection) {
     libreSwiftStatusBar.text = '$(sync~spin) Preparing Debug Session...';
@@ -79,6 +80,7 @@ export async function runDebugOnDevice(context: vscode.ExtensionContext, diagnos
             if (started) {
                 libreSwiftStatusBar.text = '$(check) Debug Session Active';
                 vscode.window.showInformationMessage(`Debug session started for ${bundleId}`);
+                await FeedbackPromptService.trackSuccessfulOperation(context, 'debug');
             } else {
                 // If no dedicated LLDB DAP extension is installed, inform user
                 vscode.window.showInformationMessage(

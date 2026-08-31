@@ -7,6 +7,7 @@ const xtoolWrapper_1 = require("../services/xtoolWrapper");
 const rcodesignWrapper_1 = require("../services/rcodesignWrapper");
 const imobiledeviceWrapper_1 = require("../services/imobiledeviceWrapper");
 const extension_1 = require("../extension");
+const feedbackPrompt_1 = require("../services/feedbackPrompt");
 async function runOnDevice(context, diagnosticCollection) {
     extension_1.libreSwiftStatusBar.text = '$(sync~spin) Starting Deployment...';
     vscode.window.withProgress({
@@ -73,13 +74,8 @@ async function runOnDevice(context, diagnosticCollection) {
             (0, imobiledeviceWrapper_1.streamDeviceLogs)(bundleId, outputChannel);
             extension_1.libreSwiftStatusBar.text = '$(check) Deployed to Device';
             vscode.window.showInformationMessage('App deployed successfully!');
-            // Periodically ask for feedback
-            if (Math.random() < 0.2) {
-                vscode.window.showInformationMessage('Enjoying LibreSwift? We would love your feedback!', 'Rate Us').then(s => {
-                    if (s === 'Rate Us')
-                        vscode.commands.executeCommand('libreswift.showFeedback');
-                });
-            }
+            // Track successful deployment and prompt for marketplace review if appropriate
+            await feedbackPrompt_1.FeedbackPromptService.trackSuccessfulOperation(context, 'deploy');
             setTimeout(() => {
                 extension_1.libreSwiftStatusBar.text = '$(play) Run on iOS';
             }, 5000);

@@ -2,7 +2,7 @@
   "name": "libreswift",
   "displayName": "LibreSwift iOS Development",
   "description": "Develop, build, and deploy native iOS Swift apps directly from Linux.",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "icon": "icon.png",
   "publisher": "KisalNelaka",
   "repository": {
@@ -100,7 +100,17 @@
       {
         "command": "libreswift.showFeedback",
         "title": "LibreSwift: Provide Feedback / Rate",
-        "icon": "$(star)"
+        "icon": "$(feedback)"
+      },
+      {
+        "command": "libreswift.rateMarketplace",
+        "title": "LibreSwift: Rate on VS Code Marketplace",
+        "icon": "$(star-full)"
+      },
+      {
+        "command": "libreswift.openGitHub",
+        "title": "LibreSwift: Star on GitHub",
+        "icon": "$(github)"
       },
       {
         "command": "libreswift.showHelp",

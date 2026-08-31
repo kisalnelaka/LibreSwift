@@ -4,6 +4,7 @@ import { buildWithXtool } from '../services/xtoolWrapper';
 import { signApp } from '../services/rcodesignWrapper';
 import { installAppOnDevice, streamDeviceLogs, getConnectedDevices } from '../services/imobiledeviceWrapper';
 import { libreSwiftStatusBar } from '../extension';
+import { FeedbackPromptService } from '../services/feedbackPrompt';
 
 export async function runOnDevice(context: vscode.ExtensionContext, diagnosticCollection: vscode.DiagnosticCollection) {
     libreSwiftStatusBar.text = '$(sync~spin) Starting Deployment...';
@@ -76,12 +77,8 @@ export async function runOnDevice(context: vscode.ExtensionContext, diagnosticCo
             libreSwiftStatusBar.text = '$(check) Deployed to Device';
             vscode.window.showInformationMessage('App deployed successfully!');
             
-            // Periodically ask for feedback
-            if (Math.random() < 0.2) {
-                vscode.window.showInformationMessage('Enjoying LibreSwift? We would love your feedback!', 'Rate Us').then(s => {
-                    if (s === 'Rate Us') vscode.commands.executeCommand('libreswift.showFeedback');
-                });
-            }
+            // Track successful deployment and prompt for marketplace review if appropriate
+            await FeedbackPromptService.trackSuccessfulOperation(context, 'deploy');
             
             setTimeout(() => {
                 libreSwiftStatusBar.text = '$(play) Run on iOS';

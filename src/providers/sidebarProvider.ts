@@ -21,7 +21,8 @@ export class SidebarProvider implements vscode.TreeDataProvider<vscode.TreeItem>
                 new CategoryItem('Environment & SDK'),
                 new CategoryItem('Build & Target Configuration'),
                 new CategoryItem('Signing & Credentials'),
-                new CategoryItem('Connected Devices')
+                new CategoryItem('Connected Devices'),
+                new CategoryItem('Support & Community')
             ];
         }
 
@@ -72,6 +73,15 @@ export class SidebarProvider implements vscode.TreeDataProvider<vscode.TreeItem>
                 return [new DetailItem('No Devices Connected', 'Connect via USB', 'libreswift.refreshDevices', 'device-mobile')];
             }
             return devices.map(d => new DetailItem(d.name || 'iOS Device', d.udid, undefined, 'device-mobile'));
+        }
+
+        if (element.label === 'Support & Community') {
+            return [
+                new DetailItem('Rate on Marketplace', '⭐ Leave a review', 'libreswift.rateMarketplace', 'star-full'),
+                new DetailItem('Provide Feedback', 'Share ideas & bugs', 'libreswift.showFeedback', 'feedback'),
+                new DetailItem('Help & Documentation', 'In-app manual', 'libreswift.showHelp', 'book'),
+                new DetailItem('Star on GitHub', 'kisalnelaka/LibreSwift', 'libreswift.openGitHub', 'github')
+            ];
         }
 
         return [];

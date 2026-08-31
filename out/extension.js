@@ -18,6 +18,7 @@ const bootstrap_1 = require("./commands/bootstrap");
 const feedbackWebview_1 = require("./webviews/feedbackWebview");
 const helpManual_1 = require("./webviews/helpManual");
 const lldbConfigProvider_1 = require("./debug/lldbConfigProvider");
+const feedbackPrompt_1 = require("./services/feedbackPrompt");
 async function activate(context) {
     console.log('LibreSwift extension is now active!');
     // Initialize SecretManager
@@ -67,7 +68,9 @@ async function activate(context) {
     });
     const feedbackCommand = vscode.commands.registerCommand('libreswift.showFeedback', () => (0, feedbackWebview_1.showFeedbackWebview)(context));
     const helpCommand = vscode.commands.registerCommand('libreswift.showHelp', () => (0, helpManual_1.showHelpManual)(context));
-    context.subscriptions.push(setupCommand, bootstrapCommand, deployCommand, debugCommand, doctorCommand, promptPasswordCommand, showLogsCommand, feedbackCommand, helpCommand);
+    const rateMarketplaceCommand = vscode.commands.registerCommand('libreswift.rateMarketplace', () => feedbackPrompt_1.FeedbackPromptService.openMarketplaceReview());
+    const openGitHubCommand = vscode.commands.registerCommand('libreswift.openGitHub', () => feedbackPrompt_1.FeedbackPromptService.openGitHub());
+    context.subscriptions.push(setupCommand, bootstrapCommand, deployCommand, debugCommand, doctorCommand, promptPasswordCommand, showLogsCommand, feedbackCommand, helpCommand, rateMarketplaceCommand, openGitHubCommand);
     // 4. Register Task Provider
     const taskProvider = vscode.tasks.registerTaskProvider('ios-build', new buildTaskProvider_1.IOSBuildTaskProvider(diagnosticCollection));
     context.subscriptions.push(taskProvider);

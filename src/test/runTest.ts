@@ -11,6 +11,7 @@ async function main() {
     const { testLspConfig } = await import('./suite/lspConfig.test');
     const { testLldbConfigProvider } = await import('./suite/lldbConfig.test');
     const { testDependencyChecker } = await import('./suite/dependencyChecker.test');
+    const { testFeedbackPromptService } = await import('./suite/feedbackPrompt.test');
 
     let passed = 0;
     let failed = 0;
@@ -19,7 +20,8 @@ async function main() {
         { name: 'Doctor Diagnostics Engine', fn: testDoctorDiagnostics },
         { name: 'SourceKit-LSP Configuration Generator', fn: testLspConfig },
         { name: 'LLDB Debug Configuration Provider', fn: testLldbConfigProvider },
-        { name: 'Dependency Health Checker', fn: testDependencyChecker }
+        { name: 'Dependency Health Checker', fn: testDependencyChecker },
+        { name: 'Feedback Prompt & Marketplace Link Service', fn: testFeedbackPromptService }
     ];
 
     for (const t of tests) {

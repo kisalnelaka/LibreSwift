@@ -16,13 +16,26 @@ export function showFeedbackWebview(context: vscode.ExtensionContext) {
         message => {
             switch (message.command) {
                 case 'submitFeedback':
-                    // In a real app, send this to an API or GitHub
                     console.log(`Received Feedback: Rating ${message.rating}, Text: ${message.text}`);
-                    vscode.window.showInformationMessage('Thank you for your feedback! It has been submitted.');
+                    if (message.text && message.text.trim().length > 0) {
+                        const issueTitle = encodeURIComponent(`[Feedback] Rating: ${message.rating}/5`);
+                        const issueBody = encodeURIComponent(`### User Rating: ${message.rating}/5\n\n### Feedback / Suggestion:\n${message.text}`);
+                        vscode.window.showInformationMessage(
+                            'Thank you for your feedback! Would you like to post this to GitHub Issues?',
+                            'Open GitHub Issue',
+                            'Close'
+                        ).then(choice => {
+                            if (choice === 'Open GitHub Issue') {
+                                vscode.env.openExternal(vscode.Uri.parse(`https://github.com/kisalnelaka/LibreSwift/issues/new?title=${issueTitle}&body=${issueBody}`));
+                            }
+                        });
+                    } else {
+                        vscode.window.showInformationMessage('Thank you for your feedback!');
+                    }
                     panel.dispose();
                     return;
                 case 'openMarketplace':
-                    vscode.env.openExternal(vscode.Uri.parse('https://marketplace.visualstudio.com/items?itemName=libreswift.libreswift'));
+                    vscode.env.openExternal(vscode.Uri.parse('https://marketplace.visualstudio.com/items?itemName=KisalNelaka.libreswift&ssr=false#review-details'));
                     panel.dispose();
                     return;
                 case 'openGitHub':

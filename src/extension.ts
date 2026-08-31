@@ -13,6 +13,7 @@ import { bootstrapEnvironment } from './commands/bootstrap';
 import { showFeedbackWebview } from './webviews/feedbackWebview';
 import { showHelpManual } from './webviews/helpManual';
 import { IOSDebugConfigurationProvider } from './debug/lldbConfigProvider';
+import { FeedbackPromptService } from './services/feedbackPrompt';
 
 // Make the status bar accessible to other modules
 export let libreSwiftStatusBar: vscode.StatusBarItem;
@@ -79,6 +80,8 @@ export async function activate(context: vscode.ExtensionContext) {
     });
     const feedbackCommand = vscode.commands.registerCommand('libreswift.showFeedback', () => showFeedbackWebview(context));
     const helpCommand = vscode.commands.registerCommand('libreswift.showHelp', () => showHelpManual(context));
+    const rateMarketplaceCommand = vscode.commands.registerCommand('libreswift.rateMarketplace', () => FeedbackPromptService.openMarketplaceReview());
+    const openGitHubCommand = vscode.commands.registerCommand('libreswift.openGitHub', () => FeedbackPromptService.openGitHub());
 
     context.subscriptions.push(
         setupCommand,
@@ -89,7 +92,9 @@ export async function activate(context: vscode.ExtensionContext) {
         promptPasswordCommand,
         showLogsCommand,
         feedbackCommand,
-        helpCommand
+        helpCommand,
+        rateMarketplaceCommand,
+        openGitHubCommand
     );
 
     // 4. Register Task Provider
