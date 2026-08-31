@@ -43,7 +43,11 @@ async function runOnDevice(context, diagnosticCollection) {
             // 2. Build with xtool
             extension_1.libreSwiftStatusBar.text = '$(sync~spin) Building Swift...';
             progress.report({ message: "Building with xtool..." });
-            const appPath = await (0, xtoolWrapper_1.buildWithXtool)('arm64-apple-ios', sdkPath, workspacePath, diagnosticCollection);
+            const appPath = await (0, xtoolWrapper_1.buildWithXtool)({
+                sdkPath,
+                workspacePath,
+                diagnosticCollection
+            });
             // 3. Sign with rcodesign
             extension_1.libreSwiftStatusBar.text = '$(lock) Signing App...';
             progress.report({ message: "Signing app..." });

@@ -2,7 +2,7 @@
   "name": "libreswift",
   "displayName": "LibreSwift iOS Development",
   "description": "Develop, build, and deploy native iOS Swift apps directly from Linux.",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "icon": "icon.png",
   "publisher": "KisalNelaka",
   "repository": {
@@ -27,7 +27,8 @@
     "sourcekit-lsp",
     "xtool",
     "rcodesign",
-    "libimobiledevice"
+    "libimobiledevice",
+    "lldb"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -60,9 +61,19 @@
         "icon": "$(cloud-download)"
       },
       {
+        "command": "libreswift.doctor",
+        "title": "LibreSwift: Run Doctor (System Diagnostics)",
+        "icon": "$(pulse)"
+      },
+      {
         "command": "libreswift.runOnDevice",
         "title": "LibreSwift: Run on Connected iOS Device",
         "icon": "$(play)"
+      },
+      {
+        "command": "libreswift.debugOnDevice",
+        "title": "LibreSwift: Debug on Connected iOS Device",
+        "icon": "$(debug-alt)"
       },
       {
         "command": "libreswift.promptP12Password",
@@ -97,22 +108,57 @@
         "icon": "$(question)"
       }
     ],
+    "debuggers": [
+      {
+        "type": "libreswift-lldb",
+        "label": "LibreSwift iOS LLDB",
+        "languages": [
+          "swift"
+        ],
+        "configurationSnippets": [
+          {
+            "label": "LibreSwift: Debug on iOS Device",
+            "description": "Build, sign, and debug Swift iOS application with LLDB",
+            "body": {
+              "type": "libreswift-lldb",
+              "request": "launch",
+              "name": "Debug on iOS Device"
+            }
+          }
+        ]
+      }
+    ],
     "menus": {
       "editor/title": [
         {
           "command": "libreswift.runOnDevice",
           "when": "resourceExtname == .swift",
-          "group": "navigation"
+          "group": "navigation@1"
+        },
+        {
+          "command": "libreswift.debugOnDevice",
+          "when": "resourceExtname == .swift",
+          "group": "navigation@2"
         }
       ],
       "view/title": [
         {
+          "command": "libreswift.doctor",
+          "when": "view == libreswift.sidebar",
+          "group": "navigation@1"
+        },
+        {
           "command": "libreswift.refreshDevices",
           "when": "view == libreswift.sidebar",
-          "group": "navigation"
+          "group": "navigation@2"
         }
       ],
       "view/item/context": [
+        {
+          "command": "libreswift.doctor",
+          "when": "view == libreswift.sidebar && viewItem == libreswift.doctor",
+          "group": "inline"
+        },
         {
           "command": "libreswift.setupEnvironment",
           "when": "view == libreswift.sidebar && viewItem == libreswift.setupEnvironment",
@@ -211,6 +257,30 @@
           "default": "~/.local/share/ios-linux-sdk/iPhoneOS.sdk",
           "description": "Path to the extracted iPhoneOS.sdk"
         },
+        "libreswift.targetTriple": {
+          "type": "string",
+          "default": "arm64-apple-ios",
+          "description": "Target architecture triple for cross-compilation (e.g., arm64-apple-ios)"
+        },
+        "libreswift.minIOSVersion": {
+          "type": "string",
+          "default": "17.0",
+          "description": "Minimum iOS deployment target version (e.g., 17.0)"
+        },
+        "libreswift.buildConfiguration": {
+          "type": "string",
+          "enum": [
+            "debug",
+            "release"
+          ],
+          "default": "debug",
+          "description": "Build configuration profile (debug or release)"
+        },
+        "libreswift.appName": {
+          "type": "string",
+          "default": "",
+          "description": "Name of the target .app bundle (leave empty to auto-detect from Package.swift or build artifacts)"
+        },
         "libreswift.p12Path": {
           "type": "string",
           "default": "",
@@ -235,11 +305,13 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "package": "npx @vscode/vsce package"
   },
   "devDependencies": {
-    "@types/vscode": "^1.85.0",
     "@types/node": "18.x",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.24.0",
     "typescript": "^5.3.3"
   },
   "dependencies": {

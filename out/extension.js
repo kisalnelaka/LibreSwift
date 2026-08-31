@@ -6,6 +6,8 @@ exports.deactivate = deactivate;
 const vscode = require("vscode");
 const setup_1 = require("./commands/setup");
 const deploy_1 = require("./commands/deploy");
+const debug_1 = require("./commands/debug");
+const doctor_1 = require("./commands/doctor");
 const buildTaskProvider_1 = require("./providers/buildTaskProvider");
 const dependencyChecker_1 = require("./services/dependencyChecker");
 const sidebarProvider_1 = require("./providers/sidebarProvider");
@@ -15,6 +17,7 @@ const lspConfig_1 = require("./lsp/lspConfig");
 const bootstrap_1 = require("./commands/bootstrap");
 const feedbackWebview_1 = require("./webviews/feedbackWebview");
 const helpManual_1 = require("./webviews/helpManual");
+const lldbConfigProvider_1 = require("./debug/lldbConfigProvider");
 async function activate(context) {
     console.log('LibreSwift extension is now active!');
     // Initialize SecretManager
@@ -39,8 +42,11 @@ async function activate(context) {
     // 2. Check Dependencies — on first run, skip the warning (walkthrough will guide them)
     const dependenciesOk = await (0, dependencyChecker_1.checkDependencies)();
     if (!dependenciesOk && !isFirstRun) {
-        vscode.window.showWarningMessage('LibreSwift: Some required CLI tools are missing.', 'Run Setup Engine', 'Show Help').then(selection => {
-            if (selection === 'Run Setup Engine') {
+        vscode.window.showWarningMessage('LibreSwift: Some required CLI tools are missing.', 'Run Doctor', 'Run Setup Engine', 'Show Help').then(selection => {
+            if (selection === 'Run Doctor') {
+                vscode.commands.executeCommand('libreswift.doctor');
+            }
+            else if (selection === 'Run Setup Engine') {
                 vscode.commands.executeCommand('libreswift.bootstrapEnvironment');
             }
             else if (selection === 'Show Help') {
@@ -48,10 +54,12 @@ async function activate(context) {
             }
         });
     }
-    // 2. Register Commands
+    // 3. Register Commands
     const setupCommand = vscode.commands.registerCommand('libreswift.setupEnvironment', () => (0, setup_1.setupEnvironment)(context));
     const bootstrapCommand = vscode.commands.registerCommand('libreswift.bootstrapEnvironment', () => (0, bootstrap_1.bootstrapEnvironment)(context));
     const deployCommand = vscode.commands.registerCommand('libreswift.runOnDevice', () => (0, deploy_1.runOnDevice)(context, diagnosticCollection));
+    const debugCommand = vscode.commands.registerCommand('libreswift.debugOnDevice', () => (0, debug_1.runDebugOnDevice)(context, diagnosticCollection));
+    const doctorCommand = vscode.commands.registerCommand('libreswift.doctor', () => (0, doctor_1.runDoctorCommand)(context));
     const promptPasswordCommand = vscode.commands.registerCommand('libreswift.promptP12Password', () => (0, secretManager_1.promptP12Password)(context));
     const showLogsCommand = vscode.commands.registerCommand('libreswift.showLogs', () => {
         const outputChannel = vscode.window.createOutputChannel('LibreSwift Device Logs');
@@ -59,25 +67,30 @@ async function activate(context) {
     });
     const feedbackCommand = vscode.commands.registerCommand('libreswift.showFeedback', () => (0, feedbackWebview_1.showFeedbackWebview)(context));
     const helpCommand = vscode.commands.registerCommand('libreswift.showHelp', () => (0, helpManual_1.showHelpManual)(context));
-    context.subscriptions.push(setupCommand, bootstrapCommand, deployCommand, promptPasswordCommand, showLogsCommand, feedbackCommand, helpCommand);
-    // 3. Register Task Provider
+    context.subscriptions.push(setupCommand, bootstrapCommand, deployCommand, debugCommand, doctorCommand, promptPasswordCommand, showLogsCommand, feedbackCommand, helpCommand);
+    // 4. Register Task Provider
     const taskProvider = vscode.tasks.registerTaskProvider('ios-build', new buildTaskProvider_1.IOSBuildTaskProvider(diagnosticCollection));
     context.subscriptions.push(taskProvider);
-    // 4. Sidebar Provider
+    // 5. Register Debug Configuration Provider
+    const debugConfigProvider = vscode.debug.registerDebugConfigurationProvider('libreswift-lldb', new lldbConfigProvider_1.IOSDebugConfigurationProvider());
+    context.subscriptions.push(debugConfigProvider);
+    // 6. Sidebar Provider
     const sidebarProvider = new sidebarProvider_1.SidebarProvider();
     vscode.window.registerTreeDataProvider('libreswift.sidebar', sidebarProvider);
     const refreshCommand = vscode.commands.registerCommand('libreswift.refreshDevices', () => {
         sidebarProvider.refresh();
     });
     context.subscriptions.push(refreshCommand);
-    // 5. SourceKit-LSP Setup
+    // 7. SourceKit-LSP Setup
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (workspaceFolders) {
         const workspacePath = workspaceFolders[0].uri.fsPath;
         await (0, lspConfig_1.updateLspConfig)(workspacePath);
         // React to config changes
         context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(async (e) => {
-            if (e.affectsConfiguration('libreswift.sdkPath')) {
+            if (e.affectsConfiguration('libreswift.sdkPath') ||
+                e.affectsConfiguration('libreswift.targetTriple') ||
+                e.affectsConfiguration('libreswift.minIOSVersion')) {
                 await (0, lspConfig_1.updateLspConfig)(workspacePath);
             }
         }));

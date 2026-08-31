@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { checkDependencies } from '../services/dependencyChecker';
 import { SecretManager } from '../services/secretManager';
-import { getConnectedDevices, IOSDevice } from '../services/imobiledeviceWrapper';
+import { getConnectedDevices } from '../services/imobiledeviceWrapper';
 
 export class SidebarProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<vscode.TreeItem | undefined | null | void> = new vscode.EventEmitter<vscode.TreeItem | undefined | null | void>();
@@ -19,6 +19,7 @@ export class SidebarProvider implements vscode.TreeDataProvider<vscode.TreeItem>
         if (!element) {
             return [
                 new CategoryItem('Environment & SDK'),
+                new CategoryItem('Build & Target Configuration'),
                 new CategoryItem('Signing & Credentials'),
                 new CategoryItem('Connected Devices')
             ];
@@ -30,8 +31,24 @@ export class SidebarProvider implements vscode.TreeDataProvider<vscode.TreeItem>
             const depsOk = await checkDependencies();
 
             return [
+                new DetailItem('Run Doctor Diagnostics', 'System health & fixes', 'libreswift.doctor', 'pulse'),
                 new DetailItem('SDK Path', sdkPath, 'libreswift.setupEnvironment', 'folder'),
-                new DetailItem('CLI Tools Health', depsOk ? 'Ready' : 'Missing Dependencies', undefined, depsOk ? 'check' : 'warning')
+                new DetailItem('CLI Tools Health', depsOk ? 'Ready' : 'Missing Dependencies', 'libreswift.doctor', depsOk ? 'check' : 'warning')
+            ];
+        }
+
+        if (element.label === 'Build & Target Configuration') {
+            const config = vscode.workspace.getConfiguration('libreswift');
+            const targetTriple = config.get<string>('targetTriple') || 'arm64-apple-ios';
+            const minIOSVersion = config.get<string>('minIOSVersion') || '17.0';
+            const buildConfig = config.get<string>('buildConfiguration') || 'debug';
+            const appName = config.get<string>('appName') || '(Auto-detected)';
+
+            return [
+                new DetailItem('Target Architecture', `${targetTriple}${minIOSVersion}`, undefined, 'symbol-property'),
+                new DetailItem('Build Configuration', buildConfig.toUpperCase(), undefined, 'gear'),
+                new DetailItem('Target App Bundle', appName, undefined, 'package'),
+                new DetailItem('Debug on Device', 'Start LLDB Session', 'libreswift.debugOnDevice', 'debug')
             ];
         }
 
@@ -39,7 +56,7 @@ export class SidebarProvider implements vscode.TreeDataProvider<vscode.TreeItem>
             const config = vscode.workspace.getConfiguration('libreswift');
             const p12Path = config.get<string>('p12Path') || 'Not Set';
             const provisionPath = config.get<string>('mobileprovisionPath') || 'Not Set';
-            
+
             const password = await SecretManager.getInstance().getP12Password();
 
             return [
