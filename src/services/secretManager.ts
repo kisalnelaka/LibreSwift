@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
 
 const P12_PASSWORD_KEY = 'libreswift.p12password';
+const APPLE_ID_EMAIL_KEY = 'libreswift.appleIdEmail';
+const APPLE_ID_PASSWORD_KEY = 'libreswift.appleIdPassword';
+const APPLE_ID_SESSION_KEY = 'libreswift.appleIdSession';
 
 export class SecretManager {
     private static instance: SecretManager;
@@ -23,6 +26,7 @@ export class SecretManager {
         return SecretManager.instance;
     }
 
+    // P12 Certificate Password
     public async storeP12Password(password: string): Promise<void> {
         await this.secretStorage.store(P12_PASSWORD_KEY, password);
     }
@@ -33,6 +37,45 @@ export class SecretManager {
 
     public async clearP12Password(): Promise<void> {
         await this.secretStorage.delete(P12_PASSWORD_KEY);
+    }
+
+    // Apple ID Email
+    public async storeAppleId(email: string): Promise<void> {
+        await this.secretStorage.store(APPLE_ID_EMAIL_KEY, email);
+    }
+
+    public async getAppleId(): Promise<string | undefined> {
+        return await this.secretStorage.get(APPLE_ID_EMAIL_KEY);
+    }
+
+    public async clearAppleId(): Promise<void> {
+        await this.secretStorage.delete(APPLE_ID_EMAIL_KEY);
+    }
+
+    // Apple ID Password / App-Specific Password
+    public async storeApplePassword(password: string): Promise<void> {
+        await this.secretStorage.store(APPLE_ID_PASSWORD_KEY, password);
+    }
+
+    public async getApplePassword(): Promise<string | undefined> {
+        return await this.secretStorage.get(APPLE_ID_PASSWORD_KEY);
+    }
+
+    public async clearApplePassword(): Promise<void> {
+        await this.secretStorage.delete(APPLE_ID_PASSWORD_KEY);
+    }
+
+    // Apple ID Session Token
+    public async storeSessionToken(token: string): Promise<void> {
+        await this.secretStorage.store(APPLE_ID_SESSION_KEY, token);
+    }
+
+    public async getSessionToken(): Promise<string | undefined> {
+        return await this.secretStorage.get(APPLE_ID_SESSION_KEY);
+    }
+
+    public async clearSessionToken(): Promise<void> {
+        await this.secretStorage.delete(APPLE_ID_SESSION_KEY);
     }
 }
 

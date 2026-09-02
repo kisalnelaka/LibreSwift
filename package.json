@@ -113,6 +113,21 @@
         "icon": "$(github)"
       },
       {
+        "command": "libreswift.createProject",
+        "title": "LibreSwift: Create New iOS Project (SwiftUI / UIKit)",
+        "icon": "$(plus)"
+      },
+      {
+        "command": "libreswift.configureAppleId",
+        "title": "LibreSwift: Configure Apple ID Signing (Free Developer Account)",
+        "icon": "$(account)"
+      },
+      {
+        "command": "libreswift.renewCertificate",
+        "title": "LibreSwift: Renew 7-Day Signing Certificate",
+        "icon": "$(sync)"
+      },
+      {
         "command": "libreswift.showHelp",
         "title": "LibreSwift: Help & Manual",
         "icon": "$(question)"
@@ -300,6 +315,16 @@
           "type": "string",
           "default": "",
           "description": "Path to the .mobileprovision file"
+        },
+        "libreswift.signingMode": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "appleId",
+            "p12"
+          ],
+          "default": "auto",
+          "description": "Code signing mode: 'auto' (prefers Apple ID / managed cert with fallback), 'appleId' (free 7-day developer account), or 'p12' (manual developer certificate & profile)"
         },
         "libreswift.bundleIdentifier": {
           "type": "string",

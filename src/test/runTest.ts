@@ -12,6 +12,8 @@ async function main() {
     const { testLldbConfigProvider } = await import('./suite/lldbConfig.test');
     const { testDependencyChecker } = await import('./suite/dependencyChecker.test');
     const { testFeedbackPromptService } = await import('./suite/feedbackPrompt.test');
+    const { testProjectScaffolder } = await import('./suite/projectScaffolder.test');
+    const { testAppleIdSigner } = await import('./suite/appleIdSigner.test');
 
     let passed = 0;
     let failed = 0;
@@ -21,7 +23,9 @@ async function main() {
         { name: 'SourceKit-LSP Configuration Generator', fn: testLspConfig },
         { name: 'LLDB Debug Configuration Provider', fn: testLldbConfigProvider },
         { name: 'Dependency Health Checker', fn: testDependencyChecker },
-        { name: 'Feedback Prompt & Marketplace Link Service', fn: testFeedbackPromptService }
+        { name: 'Feedback Prompt & Marketplace Link Service', fn: testFeedbackPromptService },
+        { name: 'iOS Project Scaffolding Wizard', fn: testProjectScaffolder },
+        { name: 'Apple ID Signer & Certificate Lifecycle', fn: testAppleIdSigner }
     ];
 
     for (const t of tests) {

@@ -5,6 +5,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { SecretManager } from './secretManager';
 import { getConnectedDevices } from './imobiledeviceWrapper';
+import { AppleIdSigner } from './appleIdSigner';
 
 const execAsync = promisify(exec);
 
@@ -289,9 +290,42 @@ async function checkConnectedDevicesAndTrust(): Promise<DiagnosticItem> {
 
 async function checkSigningConfiguration(): Promise<DiagnosticItem> {
     const config = vscode.workspace.getConfiguration('libreswift');
+    const signingMode = config.get<string>('signingMode') || 'auto';
     const p12Path = config.get<string>('p12Path');
     const provisionPath = config.get<string>('mobileprovisionPath');
 
+    // 1. Check Free Apple ID / Managed Self-Signing Status
+    const managedCert = AppleIdSigner.getCertificateStatus();
+    if (managedCert.exists && managedCert.valid && signingMode !== 'p12') {
+        return {
+            id: 'signing-assets',
+            category: 'Signing & Security',
+            title: 'Code Signing Assets',
+            status: 'pass',
+            message: `Active 7-day developer certificate for ${managedCert.email || 'Free Account'} (${managedCert.daysRemaining}d ${managedCert.hoursRemaining % 24}h remaining).`,
+            remediationAction: {
+                label: 'Renew Certificate',
+                command: 'libreswift.renewCertificate'
+            }
+        };
+    }
+
+    if (managedCert.exists && !managedCert.valid && signingMode !== 'p12') {
+        return {
+            id: 'signing-assets',
+            category: 'Signing & Security',
+            title: 'Code Signing Assets',
+            status: 'warn',
+            message: '7-Day Free Developer Certificate has expired.',
+            details: 'Apple free developer account certificates expire after 7 days and must be renewed.',
+            remediationAction: {
+                label: 'Renew 7-Day Certificate',
+                command: 'libreswift.renewCertificate'
+            }
+        };
+    }
+
+    // 2. Check Manual .p12 configuration
     const missingAssets: string[] = [];
 
     if (!p12Path) {
@@ -330,11 +364,11 @@ async function checkSigningConfiguration(): Promise<DiagnosticItem> {
             category: 'Signing & Security',
             title: 'Code Signing Assets',
             status: 'warn',
-            message: 'Incomplete signing configuration.',
-            details: missingAssets.join('; '),
+            message: 'No active code signing identity found.',
+            details: 'Configure a Free Apple ID or provide a manual .p12 certificate.',
             remediationAction: {
-                label: 'Set P12 Password',
-                command: 'libreswift.promptP12Password'
+                label: 'Setup Free Apple ID',
+                command: 'libreswift.configureAppleId'
             }
         };
     }
@@ -344,6 +378,6 @@ async function checkSigningConfiguration(): Promise<DiagnosticItem> {
         category: 'Signing & Security',
         title: 'Code Signing Assets',
         status: 'pass',
-        message: 'Certificate, provisioning profile, and keychain password verified.'
+        message: 'Manual certificate, provisioning profile, and keychain password verified.'
     };
 }

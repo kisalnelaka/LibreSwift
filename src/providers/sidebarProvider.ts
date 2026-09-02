@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { checkDependencies } from '../services/dependencyChecker';
 import { SecretManager } from '../services/secretManager';
 import { getConnectedDevices } from '../services/imobiledeviceWrapper';
+import { AppleIdSigner } from '../services/appleIdSigner';
 
 export class SidebarProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<vscode.TreeItem | undefined | null | void> = new vscode.EventEmitter<vscode.TreeItem | undefined | null | void>();
@@ -18,11 +19,19 @@ export class SidebarProvider implements vscode.TreeDataProvider<vscode.TreeItem>
     async getChildren(element?: vscode.TreeItem): Promise<vscode.TreeItem[]> {
         if (!element) {
             return [
+                new CategoryItem('Project & Scaffolding'),
                 new CategoryItem('Environment & SDK'),
                 new CategoryItem('Build & Target Configuration'),
                 new CategoryItem('Signing & Credentials'),
                 new CategoryItem('Connected Devices'),
                 new CategoryItem('Support & Community')
+            ];
+        }
+
+        if (element.label === 'Project & Scaffolding') {
+            return [
+                new DetailItem('Create New iOS Project', 'SwiftUI / UIKit / CLI template wizard', 'libreswift.createProject', 'plus'),
+                new DetailItem('Setup iOS Environment', 'Extract iPhoneOS.sdk from Xcode', 'libreswift.setupEnvironment', 'folder')
             ];
         }
 
@@ -55,16 +64,55 @@ export class SidebarProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 
         if (element.label === 'Signing & Credentials') {
             const config = vscode.workspace.getConfiguration('libreswift');
-            const p12Path = config.get<string>('p12Path') || 'Not Set';
-            const provisionPath = config.get<string>('mobileprovisionPath') || 'Not Set';
+            const signingMode = config.get<string>('signingMode') || 'auto';
+            const p12Path = config.get<string>('p12Path');
+            const provisionPath = config.get<string>('mobileprovisionPath');
+            const certStatus = AppleIdSigner.getCertificateStatus();
 
-            const password = await SecretManager.getInstance().getP12Password();
+            const items: DetailItem[] = [];
 
-            return [
-                new DetailItem('P12 Certificate', p12Path, undefined, 'key'),
-                new DetailItem('Mobile Provision', provisionPath, undefined, 'file'),
-                new DetailItem('P12 Password', password ? 'Stored Securely' : 'Not Set', 'libreswift.promptP12Password', password ? 'lock' : 'unlock')
-            ];
+            // Display Signing Mode
+            items.push(new DetailItem(
+                'Signing Mode',
+                signingMode === 'p12' ? 'Manual .p12 & Profile' : 'Free Apple ID (Automated)',
+                undefined,
+                'shield'
+            ));
+
+            if (signingMode === 'p12' || (p12Path && provisionPath)) {
+                const password = await SecretManager.getInstance().getP12Password();
+                items.push(new DetailItem('P12 Certificate', p12Path || 'Not Set', undefined, 'key'));
+                items.push(new DetailItem('Mobile Provision', provisionPath || 'Not Set', undefined, 'file'));
+                items.push(new DetailItem('P12 Password', password ? 'Stored Securely' : 'Not Set', 'libreswift.promptP12Password', password ? 'lock' : 'unlock'));
+            } else {
+                // Free Apple ID / Managed Self-Signing Mode
+                items.push(new DetailItem(
+                    'Apple ID Account',
+                    certStatus.email || 'Not Configured (Click to set up)',
+                    'libreswift.configureAppleId',
+                    'account'
+                ));
+
+                const certDesc = certStatus.valid
+                    ? `Valid (${certStatus.daysRemaining}d ${certStatus.hoursRemaining % 24}h remaining)`
+                    : (certStatus.exists ? 'Expired (Click to renew)' : 'Not Generated');
+
+                items.push(new DetailItem(
+                    '7-Day Certificate',
+                    certDesc,
+                    'libreswift.renewCertificate',
+                    certStatus.valid ? 'verified' : 'warning'
+                ));
+
+                items.push(new DetailItem(
+                    'Renew 7-Day Certificate',
+                    '1-Click Refresh',
+                    'libreswift.renewCertificate',
+                    'sync'
+                ));
+            }
+
+            return items;
         }
 
         if (element.label === 'Connected Devices') {

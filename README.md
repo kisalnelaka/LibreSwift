@@ -29,6 +29,8 @@ graph TD
 
 | Feature | Description |
 |---|---|
+| 🏗️ **Project Scaffolding Wizard** | Interactive generator for new iOS projects with starter templates: **SwiftUI**, **UIKit**, and **Swift CLI** with pre-configured Package.swift, Info.plist, and VS Code tasks |
+| 🔑 **Free Apple ID Self-Signing** | Automated 7-day developer certificate & provisioning profile generation using a free Apple ID — deploy to personal iPhones without a Mac or $99/yr license |
 | 🩺 **LibreSwift Doctor** | Automated health-check engine scanning CLI tools, SDK headers, usbmuxd sockets, USB pairing trust, and certificate validity with one-click fixes |
 | 🐛 **Interactive LLDB Debugging** | Connect VS Code debug sessions to physical iOS devices with breakpoint, variable watch, and stack trace inspection |
 | ⚙️ **Dynamic Target & Release Modes** | Support for custom target triples (`arm64-apple-ios`), minimum iOS versions, dynamic `.app` discovery, and Debug vs. Release optimization profiles |
@@ -37,18 +39,28 @@ graph TD
 | 📱 **One-Click Deployment** | Build, sign, and push to a physical device natively over USB |
 | 📋 **Real-time Device Logs** | Stream `idevicesyslog` output directly into VS Code |
 | 📦 **Automated SDK Extraction** | Unpack Xcode `.xip` archives on Linux automatically |
-| 🔐 **Secure Secret Management** | `.p12` passwords stored via VS Code `SecretStorage` (OS keychain) |
+| 🔐 **Secure Secret Management** | Apple ID and `.p12` passwords stored via VS Code `SecretStorage` (OS keychain) |
 | 👋 **Interactive Onboarding** | Auto-triggered Welcome Walkthrough on first install, skippable |
 | 📖 **Help & Manual** | Full in-app manual with 10 chapters and searchable sidebar |
-| ⭐ **Smart Feedback Webview** | In-app 5-star rating — negative feedback goes to devs, 5 stars routes to Marketplace and GitHub |
+| ⭐ **Smart Feedback Webview** | Direct review link to VS Code Marketplace, GitHub star shortcuts, and issue reporting |
 
 ## Getting Started
 
 > **New users:** On first install, LibreSwift automatically opens a guided onboarding walkthrough. Just follow the steps — you can skip at any time and return to it later via `Ctrl+Shift+P` → `Welcome: Open Walkthrough` → `LibreSwift`.
 
-### Step 1 — Run the One-Click Setup Engine or Doctor
+### Step 1 — Create a New iOS Project or Open an Existing One
 
-Open the Command Palette (`Ctrl+Shift+P`) and run:
+To scaffold a fresh iOS app with all build tasks pre-configured, open the Command Palette (`Ctrl+Shift+P`) and run:
+
+```
+LibreSwift: Create New iOS Project (SwiftUI / UIKit)
+```
+
+Choose from **SwiftUI iOS App**, **UIKit iOS App**, or **Swift CLI Tool**.
+
+### Step 2 — Run the One-Click Setup Engine & Doctor
+
+Open the Command Palette and run:
 
 ```
 LibreSwift: One-Click Automated Setup Engine
@@ -60,7 +72,7 @@ To verify your system state at any time, run:
 LibreSwift: Run Doctor (System Diagnostics)
 ```
 
-### Step 2 — Extract the iPhoneOS SDK
+### Step 3 — Extract the iPhoneOS SDK
 
 Download an official **Xcode `.xip`** from [developer.apple.com](https://developer.apple.com/download/more/) (free Apple ID required), then run:
 
@@ -68,15 +80,16 @@ Download an official **Xcode `.xip`** from [developer.apple.com](https://develop
 LibreSwift: Setup iOS Environment (Extract SDK)
 ```
 
-### Step 3 — Configure Code Signing
+### Step 4 — Configure Code Signing
 
-In VS Code Settings, set:
-- `libreswift.p12Path` → path to your `.p12` Apple Developer certificate
-- `libreswift.mobileprovisionPath` → path to your `.mobileprovision` file
+LibreSwift supports two signing methods:
 
-Then run `LibreSwift: Set P12 Password` to store your certificate password securely.
+1. **Free Apple ID Signing (Recommended — Zero Mac Required):**
+   Run `LibreSwift: Configure Apple ID Signing (Free Developer Account)` and enter your Apple ID email. LibreSwift generates a local 7-day development certificate and profile automatically.
+2. **Manual .p12 & Provisioning Profile:**
+   In VS Code Settings, set `libreswift.p12Path` and `libreswift.mobileprovisionPath`, then run `LibreSwift: Set P12 Password`.
 
-### Step 4 — Connect, Deploy & Debug
+### Step 5 — Connect, Deploy & Debug
 
 1. Plug in your iPhone via USB, unlock it, and trust the computer.
 2. Click **▶ Run on iOS** in the status bar or **🐞 Debug on Connected iOS Device** to start an interactive LLDB debug session.
@@ -96,6 +109,9 @@ usbipd attach --wsl --busid <busid>
 
 | Command | Description |
 |---|---|
+| `LibreSwift: Create New iOS Project (SwiftUI / UIKit)` | Interactive wizard to scaffold new SwiftUI, UIKit, or CLI iOS projects |
+| `LibreSwift: Configure Apple ID Signing` | Configure Free Apple ID for automated 7-day certificate generation |
+| `LibreSwift: Renew 7-Day Signing Certificate` | 1-Click renewal for free Apple ID developer certificates |
 | `LibreSwift: Run Doctor (System Diagnostics)` | Run automated health check across toolchains, SDK, sockets & certificates |
 | `LibreSwift: One-Click Automated Setup Engine` | Install all dependencies automatically |
 | `LibreSwift: Setup iOS Environment (Extract SDK)` | Extract iPhoneOS.sdk from Xcode .xip |
@@ -115,13 +131,14 @@ usbipd attach --wsl --busid <busid>
 
 | Setting | Default | Description |
 |---|---|---|
+| `libreswift.signingMode` | `auto` | Signing mode: `auto` (free Apple ID preferred), `appleId`, or `p12` |
 | `libreswift.sdkPath` | `~/.local/share/ios-linux-sdk/iPhoneOS.sdk` | Path to extracted iPhoneOS.sdk |
 | `libreswift.targetTriple` | `arm64-apple-ios` | Target architecture triple for cross-compilation |
 | `libreswift.minIOSVersion` | `17.0` | Minimum target iOS deployment version |
 | `libreswift.buildConfiguration` | `debug` | Build configuration (`debug` or `release`) |
 | `libreswift.appName` | _(empty)_ | Target .app bundle name (auto-detected if empty) |
-| `libreswift.p12Path` | _(empty)_ | Path to your `.p12` developer certificate |
-| `libreswift.mobileprovisionPath` | _(empty)_ | Path to your `.mobileprovision` file |
+| `libreswift.p12Path` | _(empty)_ | Path to your `.p12` developer certificate (for manual mode) |
+| `libreswift.mobileprovisionPath` | _(empty)_ | Path to your `.mobileprovision` file (for manual mode) |
 | `libreswift.bundleIdentifier` | `com.example.App` | Bundle ID of your iOS app |
 
 ## Issues & Support

@@ -19,6 +19,8 @@ const feedbackWebview_1 = require("./webviews/feedbackWebview");
 const helpManual_1 = require("./webviews/helpManual");
 const lldbConfigProvider_1 = require("./debug/lldbConfigProvider");
 const feedbackPrompt_1 = require("./services/feedbackPrompt");
+const scaffold_1 = require("./commands/scaffold");
+const appleIdSigner_1 = require("./services/appleIdSigner");
 async function activate(context) {
     console.log('LibreSwift extension is now active!');
     // Initialize SecretManager
@@ -70,7 +72,10 @@ async function activate(context) {
     const helpCommand = vscode.commands.registerCommand('libreswift.showHelp', () => (0, helpManual_1.showHelpManual)(context));
     const rateMarketplaceCommand = vscode.commands.registerCommand('libreswift.rateMarketplace', () => feedbackPrompt_1.FeedbackPromptService.openMarketplaceReview());
     const openGitHubCommand = vscode.commands.registerCommand('libreswift.openGitHub', () => feedbackPrompt_1.FeedbackPromptService.openGitHub());
-    context.subscriptions.push(setupCommand, bootstrapCommand, deployCommand, debugCommand, doctorCommand, promptPasswordCommand, showLogsCommand, feedbackCommand, helpCommand, rateMarketplaceCommand, openGitHubCommand);
+    const createProjectCommand = vscode.commands.registerCommand('libreswift.createProject', () => (0, scaffold_1.createNewProjectCommand)(context));
+    const configureAppleIdCommand = vscode.commands.registerCommand('libreswift.configureAppleId', () => appleIdSigner_1.AppleIdSigner.promptConfigureAppleId(context));
+    const renewCertCommand = vscode.commands.registerCommand('libreswift.renewCertificate', () => appleIdSigner_1.AppleIdSigner.renewCertificate(context));
+    context.subscriptions.push(setupCommand, bootstrapCommand, deployCommand, debugCommand, doctorCommand, promptPasswordCommand, showLogsCommand, feedbackCommand, helpCommand, rateMarketplaceCommand, openGitHubCommand, createProjectCommand, configureAppleIdCommand, renewCertCommand);
     // 4. Register Task Provider
     const taskProvider = vscode.tasks.registerTaskProvider('ios-build', new buildTaskProvider_1.IOSBuildTaskProvider(diagnosticCollection));
     context.subscriptions.push(taskProvider);
