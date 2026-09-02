@@ -14,6 +14,8 @@ import { showFeedbackWebview } from './webviews/feedbackWebview';
 import { showHelpManual } from './webviews/helpManual';
 import { IOSDebugConfigurationProvider } from './debug/lldbConfigProvider';
 import { FeedbackPromptService } from './services/feedbackPrompt';
+import { createNewProjectCommand } from './commands/scaffold';
+import { AppleIdSigner } from './services/appleIdSigner';
 
 // Make the status bar accessible to other modules
 export let libreSwiftStatusBar: vscode.StatusBarItem;
@@ -82,6 +84,9 @@ export async function activate(context: vscode.ExtensionContext) {
     const helpCommand = vscode.commands.registerCommand('libreswift.showHelp', () => showHelpManual(context));
     const rateMarketplaceCommand = vscode.commands.registerCommand('libreswift.rateMarketplace', () => FeedbackPromptService.openMarketplaceReview());
     const openGitHubCommand = vscode.commands.registerCommand('libreswift.openGitHub', () => FeedbackPromptService.openGitHub());
+    const createProjectCommand = vscode.commands.registerCommand('libreswift.createProject', () => createNewProjectCommand(context));
+    const configureAppleIdCommand = vscode.commands.registerCommand('libreswift.configureAppleId', () => AppleIdSigner.promptConfigureAppleId(context));
+    const renewCertCommand = vscode.commands.registerCommand('libreswift.renewCertificate', () => AppleIdSigner.renewCertificate(context));
 
     context.subscriptions.push(
         setupCommand,
@@ -94,7 +99,10 @@ export async function activate(context: vscode.ExtensionContext) {
         feedbackCommand,
         helpCommand,
         rateMarketplaceCommand,
-        openGitHubCommand
+        openGitHubCommand,
+        createProjectCommand,
+        configureAppleIdCommand,
+        renewCertCommand
     );
 
     // 4. Register Task Provider
